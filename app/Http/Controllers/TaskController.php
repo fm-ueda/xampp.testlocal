@@ -3,23 +3,24 @@
 namespace App\Http\Controllers;
 
 use App\Folder;
-use App\Task;
 use App\Http\Requests\CreateTask;
 use App\Http\Requests\EditTask;
+use App\Task;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class TaskController extends Controller
 {
     public function index(int $id)
     {
         // すべてのフォルダを取得する
-        $folders = Folder::all();
+        $folders = Auth::user()->folders()->get();
 
         // 選ばれたフォルダを取得する
         $current_folder = Folder::find($id);
 
         // 選ばれたフォルダに紐づくタスクを取得する
-        $tasks = $current_folder->tasks()->get(); // ★
+        $tasks = $current_folder->tasks()->get();
 
         return view('tasks/index', [
             'folders' => $folders,
@@ -28,9 +29,6 @@ class TaskController extends Controller
         ]);
     }
 
-    /**
-     * GET /folders/{id}/tasks/create
-     */
     public function showCreateForm(int $id)
     {
         return view('tasks/create', [
@@ -53,9 +51,6 @@ class TaskController extends Controller
         ]);
     }
 
-    /**
-     * GET /folders/{id}/tasks/{task_id}/edit
-     */
     public function showEditForm(int $id, int $task_id)
     {
         $task = Task::find($task_id);
@@ -67,16 +62,12 @@ class TaskController extends Controller
 
     public function edit(int $id, int $task_id, EditTask $request)
     {
-        // 1
         $task = Task::find($task_id);
-
-        // 2
         $task->title = $request->title;
         $task->status = $request->status;
         $task->due_date = $request->due_date;
         $task->save();
 
-        // 3
         return redirect()->route('tasks.index', [
             'id' => $task->folder_id,
         ]);

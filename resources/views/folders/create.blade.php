@@ -7,17 +7,26 @@
       <nav class="panel panel-default">
         <div class="panel-heading">フォルダを追加する</div>
         <div class="panel-body">
+          <!-- ルール違反の内容が詰められた$errors変数を使ってルール違反があったかを確認する -->
           @if($errors->any())
           <div class="alert alert-danger">
-            @foreach($errors->all() as $message)
-            <p>{{ $message }}</p>
-            @endforeach
+            <ul>
+              <!-- ルール違反があった場合、エラーメッセージを列挙する -->
+              @foreach($errors->all() as $message)
+              <li>{{ $message }}</li>
+              @endforeach
+            </ul>
           </div>
           @endif
+          　
+          <!-- formアクションでurlを呼び出し、フォームを使ってデータを送る -->
           <form action="{{ route('folders.create') }}" method="post">
+            　
+            <!-- 他サイトからの悪意あるPOSTリクエストを受け付けないよう、自分のサイトからのPOSTリクエストだけ受け付けるため、CSRFトークンを用いる -->
             @csrf
             <div class="form-group">
               <label for="title">フォルダ名</label>
+              <!-- 入力エラーでフォーム画面に戻ったとき、old関数からセッション値を取得し、入力欄の値を復元させる -->
               <input type="text" class="form-control" name="title" id="title" value="{{ old('title') }}" />
             </div>
             <div class="text-right">
